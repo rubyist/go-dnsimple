@@ -68,7 +68,7 @@ func (client *DNSimpleClient) CreateRecord(domain interface{}, record Record) (R
 		return Record{}, err
 	}
 
-	if status != 201 {
+	if status != 201 && status != 200 {
 		return Record{}, errors.New(fmt.Sprintf("The API returned an error: HTTP %v", status))
 	}
 
