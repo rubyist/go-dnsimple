@@ -123,6 +123,31 @@ func TestRecord_CreateRecord(t *testing.T) {
 	}
 }
 
+func TestRecord_RetrieveRecord(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/v1/domains/example.com/records/42", func(w http.ResponseWriter, r *http.Request) {
+		want := make(map[string]interface{})
+		want["record"] = map[string]interface{}{"name": "foo", "content": "192.168.0.10", "record_type": "A"}
+
+		testMethod(t, r, "GET")
+
+		fmt.Fprintf(w, `{"record":{"id":42, "name":"foo"}}`)
+	})
+
+	record, err := client.RetrieveRecord("example.com", 42)
+
+	if err != nil {
+		t.Errorf("RetrieveRecod returned error: %v", err)
+	}
+
+	want := Record{Id: 42, Name: "foo"}
+	if !reflect.DeepEqual(record, want) {
+		t.Errorf("RetrieveRecod returned %+v, want %+v", record, want)
+	}
+}
+
 func TestRecord_Delete(t *testing.T) {
 	setup()
 	defer teardown()

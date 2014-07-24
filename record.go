@@ -68,8 +68,19 @@ func (client *DNSimpleClient) CreateRecord(domain interface{}, record Record) (R
 		return Record{}, err
 	}
 
-	if status == 400 {
-		return Record{}, errors.New("Invalid Record")
+	if status != 201 && status != 200 {
+		return Record{}, errors.New(fmt.Sprintf("The API returned an error: HTTP %v", status))
+	}
+
+	return returnedRecord.Record, nil
+}
+
+func (client *DNSimpleClient) RetrieveRecord(domain interface{}, id int) (Record, error) {
+	returnedRecord := recordWrapper{}
+
+	err := client.get(recordPath(domain, &Record{Id: id}), &returnedRecord)
+	if err != nil {
+		return Record{}, err
 	}
 
 	return returnedRecord.Record, nil
